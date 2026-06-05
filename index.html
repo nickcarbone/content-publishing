@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Distribution: Beyond the Default Stack</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Code+Pro:wght@400;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1814;
+    --paper: #f4f0e6;
+    --rule: #c8bfa8;
+    --gold: #b8860b;
+    --gold-light: #d4a017;
+    --red: #8b2020;
+    --muted: #6b6355;
+    --tag-bg: #1a1814;
+    --tag-fg: #f4f0e6;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.65;
+  }
+
+  /* Masthead */
+  .masthead {
+    border-bottom: 3px double var(--ink);
+    padding: 2.5rem 3.5rem 1.5rem;
+    position: relative;
+  }
+
+  .masthead::before {
+    content: '';
+    display: block;
+    height: 3px;
+    background: var(--ink);
+    margin-bottom: 0.35rem;
+  }
+
+  .dateline {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .masthead h1 {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    max-width: 820px;
+    letter-spacing: -0.02em;
+  }
+
+  .masthead .dek {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 1.2rem;
+    color: var(--muted);
+    margin-top: 0.75rem;
+    max-width: 640px;
+    line-height: 1.5;
+  }
+
+  .masthead .classif {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--red);
+    text-transform: uppercase;
+    position: absolute;
+    top: 2.5rem;
+    right: 3.5rem;
+    border: 1px solid var(--red);
+    padding: 0.2rem 0.5rem;
+  }
+
+  /* Intro block */
+  .intro-strip {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 1.1rem 3.5rem;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: flex;
+    gap: 3rem;
+  }
+
+  .intro-strip span { color: var(--gold-light); }
+
+  /* Main body */
+  .container {
+    max-width: 1060px;
+    margin: 0 auto;
+    padding: 2rem 3.5rem 5rem;
+  }
+
+  .lede {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 1.22rem;
+    line-height: 1.7;
+    border-left: 3px solid var(--gold);
+    padding-left: 1.4rem;
+    margin: 2.5rem 0 3rem;
+    color: #2c2820;
+    max-width: 760px;
+  }
+
+  /* Section header */
+  .section-rule {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .section-rule .label {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .section-rule .line {
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* Entry cards */
+  .entries {
+    display: grid;
+    gap: 0;
+  }
+
+  .entry {
+    display: grid;
+    grid-template-columns: 4.5rem 1fr;
+    border-top: 1px solid var(--rule);
+    padding: 2rem 0;
+    gap: 2rem;
+    transition: background 0.15s;
+  }
+
+  .entry:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .entry:hover {
+    background: rgba(184, 134, 11, 0.04);
+  }
+
+  .entry-num {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--rule);
+    line-height: 1;
+    padding-top: 0.2rem;
+    user-select: none;
+    letter-spacing: -0.04em;
+  }
+
+  .entry-body {}
+
+  .entry-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.6rem;
+  }
+
+  .entry-title {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+
+  .tag {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    background: var(--tag-bg);
+    color: var(--tag-fg);
+    padding: 0.18rem 0.5rem;
+    border-radius: 1px;
+    white-space: nowrap;
+    margin-top: 0.18rem;
+  }
+
+  .tag.passive { background: var(--gold); color: var(--ink); }
+  .tag.b2b { background: var(--red); color: #fff; }
+  .tag.active { background: var(--muted); color: var(--paper); }
+
+  .entry-desc {
+    font-size: 1rem;
+    line-height: 1.65;
+    color: #2c2820;
+    margin-bottom: 0.6rem;
+  }
+
+  .entry-mechanic {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  .entry-mechanic strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* Advisory callout */
+  .callout {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2rem 2.5rem;
+    margin: 3rem 0 0;
+    position: relative;
+  }
+
+  .callout::before {
+    content: '[ EDITORIAL NOTE ]';
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    color: var(--gold-light);
+    display: block;
+    margin-bottom: 0.9rem;
+  }
+
+  .callout p {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 1.08rem;
+    line-height: 1.7;
+    font-style: italic;
+    color: #d9d0be;
+  }
+
+  .callout p + p { margin-top: 0.8rem; }
+
+  /* Footer */
+  .footer-rule {
+    border: none;
+    border-top: 3px double var(--ink);
+    margin-top: 4rem;
+    padding-top: 1rem;
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  @media (max-width: 640px) {
+    .masthead, .container, .intro-strip { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .entry { grid-template-columns: 3rem 1fr; gap: 1rem; }
+    .entry-num { font-size: 2rem; }
+    .masthead .classif { display: none; }
+    .intro-strip { flex-direction: column; gap: 0.5rem; }
+    .footer-rule { flex-direction: column; gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="dateline">Signal Memorandum &nbsp;·&nbsp; Distribution Intelligence &nbsp;·&nbsp; Vol. I</div>
+  <h1>Content Distribution:<br>Beyond the Default Stack</h1>
+  <p class="dek">Eight channels serious practitioners actually use — none of which require a Gumroad account.</p>
+  <div class="classif">Working Document</div>
+</header>
+
+<div class="intro-strip">
+  Entries: <span>8</span> &nbsp;·&nbsp;
+  Passive income claims: <span>0</span> &nbsp;·&nbsp;
+  Substacks mentioned: <span>0</span> &nbsp;·&nbsp;
+  Gumroad links: <span>0</span>
+</div>
+
+<div class="container">
+
+  <p class="lede">
+    Most content distribution advice optimizes for low friction at the cost of low yield. The channels below assume you have something genuinely worth distributing — and that your goal is audience quality, not audience volume.
+  </p>
+
+  <div class="section-rule">
+    <span class="label">Distribution Channels</span>
+    <span class="line"></span>
+  </div>
+
+  <div class="entries">
+
+    <div class="entry">
+      <div class="entry-num">01</div>
+      <div class="entry-body">
+        <div class="entry-header">
+          <div class="entry-title">Licensed Syndication</div>
+          <span class="tag b2b">B2B</span>
+        </div>
+        <p class="entry-desc">
+          Pitch your work to wire services (AP, Reuters Connect, Tribune Content Agency) or regional newspaper syndicates for placement across their subscriber networks. A single piece can run in dozens of outlets simultaneously under your byline, with a licensing fee paid to you — not the other way around. The model is old and underused by digital-native writers who don't know it exists.
+        </p>
+        <p class="entry-mechanic"><strong>Best for:</strong> Analysis, commentary, columns with consistent voice &nbsp;·&nbsp; <strong>Upside:</strong> One piece, many placements, recurring licensing revenue</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-num">02</div>
+      <div class="entry-body">
+        <div class="entry-header">
+          <div class="entry-title">Trade Press Op-Ed Placement</div>
+          <span class="tag b2b">B2B</span>
+        </div>
+        <p class="entry-desc">
+          Every vertical industry has two or three trade publications that serve as the canonical reading for practitioners — Pensions &amp; Investments for asset managers, Risk.net for compliance desks, Global Telecom Business for the connectivity industry. These outlets actively seek expert outside contributors and give you an audience that is pre-qualified, senior, and often exactly who you'd want to reach. Zero follower count required; credibility does the work.
+        </p>
+        <p class="entry-mechanic"><strong>Best for:</strong> B2B expertise, professional credibility-building &nbsp;·&nbsp; <strong>Upside:</strong> Reaches decision-makers, not scrollers</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-num">03</div>
+      <div class="entry-body">
+        <div class="entry-header">
+          <div class="entry-title">The Conference Speaking Circuit</div>
+          <span class="tag active">Active</span>
+        </div>
+        <p class="entry-desc">
+          Speaking at industry events transforms content from something people read into something people experience — and remember. Your talk is the content. The recording becomes an artifact. The Q&amp;A builds relationships. It compounds: one keynote generates video clips, pull quotes, invitations to panels, and warm inbound that a hundred newsletters couldn't manufacture. The circuit is less competitive than it looks because most practitioners never try.
+        </p>
+        <p class="entry-mechanic"><strong>Best for:</strong> Established expertise, thought leadership, client development &nbsp;·&nbsp; <strong>Upside:</strong> Relationships, inbound, paid speaker fees at senior levels</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-num">04</div>
+      <div class="entry-body">
+        <div class="entry-header">
+          <div class="entry-title">Ghost-Authored Executive Content</div>
+          <span class="tag b2b">B2B</span>
+          <span class="tag passive">Revenue</span>
+        </div>
+        <p class="entry-desc">
+          Senior executives at PE firms, consultancies, and think tanks have ideas and platforms but no time to write. A skilled journalist can ghost-author LinkedIn essays, white papers, and op-eds that publish under the executive's name. The work gets wide distribution through their existing network; you get paid (rates run $500–$5,000 per piece at the senior end) and accumulate off-record relationships worth more than any byline. This is a legitimate, well-established market hiding in plain sight.
+        </p>
+        <p class="entry-mechanic"><strong>Best for:</strong> Journalists with strong B2B sector knowledge &nbsp;·&nbsp; <strong>Upside:</strong> High per-unit pay, relationship depth, durable repeat work</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-num">05</div>
+      <div class="entry-body">
+        <div class="entry-header">
+          <div class="entry-title">LinkedIn Native Publishing</div>
+          <span class="tag active">Active</span>
+        </div>
+        <p class="entry-desc">
+          Genuinely underrated and widely misunderstood. LinkedIn's algorithm heavily surfaces long-form native articles and substantive posts to professional audiences who share them within their vertical networks — without you needing a follower base. This is not the platform for thought leadership clichés or humble-brags. The content that travels is specific, credentialed analysis: "Here is something I know that most people in this industry don't." The B2B reach-per-effort ratio is difficult to match anywhere else.
+        </p>
+        <p class="entry-mechanic"><strong>Best for:</strong> B2B audiences, compliance, finance, policy, risk &nbsp;·&nbsp; <strong>Upside:</strong> Organic discovery, professional network compounding, zero cost</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-num">06</div>
+      <div class="entry-body">
+        <div class="entry-header">
+          <div class="entry-title">Strategic Podcast Guesting</div>
+          <span class="tag active">Active</span>
+        </div>
+        <p class="entry-desc">
+          Not building a podcast — appearing on the right ones. The 500,000th true-crime podcast does not need you. But a tightly scoped industry podcast with 8,000 highly specific listeners (intelligence community professionals, PE associates, OSINT practitioners) is a more valuable platform than a general publication with ten times the readership. Identify the three podcasts your ideal client actually listens to on their commute and pitch them. One excellent 45-minute appearance creates clips, transcripts, and introductions that work for months.
+        </p>
+        <p class="entry-mechanic"><strong>Best for:</strong> Any niche with an active podcast ecosystem &nbsp;·&nbsp; <strong>Upside:</strong> Trust transfer from host, evergreen archive, targeted reach</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-num">07</div>
+      <div class="entry-body">
+        <div class="entry-header">
+          <div class="entry-title">Closed Intelligence Distributions</div>
+          <span class="tag b2b">B2B</span>
+          <span class="tag passive">Revenue</span>
+        </div>
+        <p class="entry-desc">
+          The highest-value content is often the most restricted. A formatted PDF brief, memo, or situation report distributed directly to a curated subscriber list via email — no platform, no algorithm, no SEO — commands premium pricing precisely because of its exclusivity and directness. Stratfor built its entire business on this model. The Economist Intelligence Unit. The Briefing Room. Access is the product; the writing is the mechanism. Distribution by invitation or paid subscription only, with no public-facing archive.
+        </p>
+        <p class="entry-mechanic"><strong>Best for:</strong> Political risk, compliance, market intelligence, sector analysis &nbsp;·&nbsp; <strong>Upside:</strong> Highest per-reader revenue, premium positioning, no platform dependency</p>
+      </div>
+    </div>
+
+    <div class="entry">
+      <div class="entry-num">08</div>
+      <div class="entry-body">
+        <div class="entry-header">
+          <div class="entry-title">High-Trust Community Seeding</div>
+          <span class="tag active">Active</span>
+        </div>
+        <p class="entry-desc">
+          Certain Slack workspaces, Discord servers, and private forums operate as the real information layer of an industry. OSINT Twitter, compliance Slack groups, political risk Discord communities — the practitioners in these spaces share material that actually moves their work forward, and a single piece landing in the right channel can travel further and faster than anything algorithmic. This is not spam; it's finding the rooms where your work is genuinely useful and becoming a trusted contributor before you distribute anything.
+        </p>
+        <p class="entry-mechanic"><strong>Best for:</strong> Niche technical or professional communities &nbsp;·&nbsp; <strong>Upside:</strong> Word-of-mouth through high-credibility networks, no follower requirement</p>
+      </div>
+    </div>
+
+  </div><!-- end entries -->
+
+  <div class="callout">
+    <p>
+      The common thread in every channel above is that <em>distribution follows credibility</em>, not the reverse. You are not building an audience by posting consistently and hoping the algorithm rewards you. You are placing specific, expert work where specific, expert people already gather — and letting the quality do the acquisition.
+    </p>
+    <p>
+      For anyone operating in B2B intelligence, compliance, or political risk: channels 02, 04, and 07 alone represent a full content strategy. The others compound them.
+    </p>
+  </div>
+
+  <div class="footer-rule">
+    <span>Content Distribution Intelligence · Working Document</span>
+    <span>Not for general circulation</span>
+  </div>
+
+</div><!-- end container -->
+
+</body>
+</html>
